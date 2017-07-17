@@ -6,7 +6,7 @@ project(network_buffer)
 #find_package(Boost 1.61.0 REQUIRED system)
 
 # Setup Catch unit tests
-set(CATCH_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/Catch/include)
+set(CATCH_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/Catch/single_include)
 add_library(Catch INTERFACE)
 target_include_directories(Catch INTERFACE ${CATCH_INCLUDE_DIR})
 

@@ -3,6 +3,15 @@
 
 #include "network_buffer.hpp"
 
+#include <iostream>
+
+using namespace std;
+
+TEST_CASE("Initialization") {
+    NetworkBuffer<> buffer;
+    REQUIRE((void*)buffer.getBuffer() == (void*)buffer.read(0));
+}
+
 TEST_CASE("Basic read/write tests") {
     NetworkBuffer<> buffer;
 
@@ -96,4 +105,29 @@ TEST_CASE("Read directly into buffer") {
     REQUIRE(hostShort == 512);
     uint32_t hostLong = buffer.read32();
     REQUIRE(hostLong == 512 * 512);
+}
+
+TEST_CASE("Direct read/write") {
+    NetworkBuffer<> buffer;
+
+    SECTION("string") {
+        string str{"Hello, world"};
+        buffer.write(reinterpret_cast<const uint8_t*>(str.c_str()), str.length());
+
+        uint8_t* rawStr = buffer.read(str.length());
+        string bufStr((char*)rawStr, str.length());
+
+        REQUIRE(str.compare(std::string{bufStr}) == 0);
+    }
+
+    SECTION("data") {
+        uint8_t buf[12] = {0xDE, 0xAD, 0xBE, 0xEF, 0xDE, 0xAD, 0xBE, 0xEF};
+        buffer.write(buf, 12);
+
+        uint8_t* raw = buffer.read(12);
+
+        for (auto i = 0; i < 12; ++i) {
+            REQUIRE(raw[i] == buf[i]);
+        }
+    }
 }

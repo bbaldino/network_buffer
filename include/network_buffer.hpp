@@ -27,6 +27,16 @@ public:
         _write(networkVal);
     }
 
+    /**
+     * Directly write the contents of the given
+     * buffer
+     */
+    void write(const uint8_t* const buf, std::size_t numBytes) {
+        assert(_tail + numBytes < _buffer + BUF_SIZE);
+        memcpy(_tail, buf, numBytes);
+        _tail += numBytes;
+    }
+
     uint8_t read8() const {
         return _read<uint8_t>();
     }
@@ -39,6 +49,18 @@ public:
     uint32_t read32() const {
         uint32_t res = _read<uint32_t>();
         return ntohl(res);
+    }
+
+    /**
+     * Directly read the contents of the buffer
+     * Returns a pointer to the buffer at the
+     * current point and advances the position
+     * by the given number of bytes
+     */
+    uint8_t* read(std::size_t numBytes) {
+        uint8_t* currPos = _head;
+        _head += numBytes;
+        return currPos;
     }
 
     const uint8_t* const getBuffer() const {

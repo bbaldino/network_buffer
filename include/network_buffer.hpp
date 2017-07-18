@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cassert>
+
 /**
  * Stores data in a buffer in network order, provides
  * convenience methods for writing to and reading

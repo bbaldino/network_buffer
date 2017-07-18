@@ -5,6 +5,7 @@
  * convenience methods for writing to and reading
  * from the buffer
  */
+template<unsigned int BUF_SIZE = 1500>
 class NetworkBuffer {
 public:
     NetworkBuffer() :
@@ -71,8 +72,6 @@ public:
     size_t size() const {
         return _tail - _buffer;
     }
-
-    static const std::size_t BUF_SIZE = 1500;
 
 //protected:
     uint8_t _buffer[BUF_SIZE]; 

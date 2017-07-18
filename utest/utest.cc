@@ -1,10 +1,10 @@
 #define CATCH_CONFIG_MAIN
 #include "catch.hpp"
 
-#include "buffer.hpp"
+#include "network_buffer.hpp"
 
 TEST_CASE("Basic read/write tests") {
-    NetworkBuffer buffer;
+    NetworkBuffer<> buffer;
 
     SECTION("uint8_t") {
         uint8_t writeVal = 42;
@@ -29,7 +29,7 @@ TEST_CASE("Basic read/write tests") {
 }
 
 TEST_CASE("Size tests") {
-    NetworkBuffer buffer;
+    NetworkBuffer<> buffer;
 
     buffer.write(static_cast<uint8_t>(42));
     REQUIRE(buffer.size() == 1);
@@ -48,7 +48,7 @@ TEST_CASE("Size tests") {
 TEST_CASE("Network order") {
     // Verify that the buffer is storing the data
     // in network order
-    NetworkBuffer buffer;
+    NetworkBuffer<> buffer;
 
     buffer.write(static_cast<uint8_t>(42));
     buffer.write(static_cast<uint16_t>(512));
@@ -79,7 +79,7 @@ TEST_CASE("Read directly into buffer") {
     uint16_t networkShort = htons(512);
     uint32_t networkLong = htonl(512 * 512);
 
-    NetworkBuffer buffer;
+    NetworkBuffer<> buffer;
     uint8_t* buf = buffer.getBuffer();
     memcpy(buf, &networkByte, sizeof(networkByte));
     buf += sizeof(networkByte);

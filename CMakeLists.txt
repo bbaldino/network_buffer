@@ -4,13 +4,16 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 project(network_buffer)
 
 # Setup Catch unit tests
-set(CATCH_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/Catch/single_include)
+set(CATCH_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/thirdparty/Catch/single_include)
 add_library(Catch INTERFACE)
 target_include_directories(Catch INTERFACE ${CATCH_INCLUDE_DIR})
-
-set(TEST_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/utest/utest.cc)
-add_executable(tests ${TEST_SOURCES})
-target_link_libraries(tests Catch)
+enable_testing(true)
+# Can't find any way to pass the 'verbose' flag to ctest using the
+#  normal 'make test' target
+add_custom_target(check 
+                  COMMAND ${CMAKE_CTEST_COMMAND} --verbose
+                  DEPENDS tests)
+add_subdirectory(utest)
 
 include_directories(include)
-file(GLOB SOURCES "src/*.cc" "test/*.cc")
+file(GLOB SOURCES "src/*.cc")

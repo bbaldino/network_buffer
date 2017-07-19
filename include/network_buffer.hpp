@@ -58,7 +58,7 @@ public:
      * current point and advances the position
      * by the given number of bytes
      */
-    uint8_t* read(std::size_t numBytes) {
+    uint8_t* read(std::size_t numBytes) const {
         uint8_t* currPos = _head;
         _head += numBytes;
         return currPos;

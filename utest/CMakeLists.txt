@@ -11,8 +11,8 @@ file(GLOB TEST_SOURCES "*.cc")
 # Create the unit test executable
 add_executable(utests ${TEST_SOURCES})
 
-# Link the unit tests to Catch
-target_link_libraries(utests Catch)
+# Link the unit tests to Catch and what we're testing (NetworkBuffer)
+target_link_libraries(utests Catch NetworkBuffer)
 
 add_test(NAME utests 
          COMMAND ${CMAKE_BINARY_DIR}/utest/utests --force-colour)

@@ -33,7 +33,7 @@ public:
      * buffer
      */
     void write(const uint8_t* const buf, std::size_t numBytes) {
-        assert(_tail + numBytes < _buffer + BUF_SIZE);
+        assert(_tail + numBytes <= _buffer + BUF_SIZE);
         memcpy(_tail, buf, numBytes);
         _tail += numBytes;
     }
@@ -59,6 +59,7 @@ public:
      * by the given number of bytes
      */
     uint8_t* read(std::size_t numBytes) const {
+        assert(_head + numBytes <= _buffer + BUF_SIZE);
         uint8_t* currPos = _head;
         _head += numBytes;
         return currPos;

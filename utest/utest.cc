@@ -35,6 +35,16 @@ TEST_CASE("Basic read/write tests") {
         uint32_t readVal = buffer.read32();
         REQUIRE(readVal == writeVal);
     }
+
+    SECTION("buffer") {
+        NetworkBuffer<4> buffer;
+        uint8_t writeVal[4] = { 0xDE, 0xAD, 0xBE, 0XEF };
+        buffer.write(writeVal, 4);
+        uint8_t* readVal = buffer.read(4);
+        for (auto i = 0; i < 4; ++i) {
+            REQUIRE(writeVal[i] == readVal[i]);
+        }
+    }
 }
 
 TEST_CASE("Size tests") {

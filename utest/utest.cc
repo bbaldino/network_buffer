@@ -10,6 +10,7 @@ using namespace std;
 TEST_CASE("Initialization") {
     NetworkBuffer<> buffer;
     REQUIRE((void*)buffer.getBuffer() == (void*)buffer.read(0));
+    REQUIRE(buffer.empty() == true);
 }
 
 TEST_CASE("Basic read/write tests") {
@@ -47,7 +48,7 @@ TEST_CASE("Basic read/write tests") {
     }
 }
 
-TEST_CASE("Size tests") {
+TEST_CASE("Size/empty tests") {
     NetworkBuffer<> buffer;
 
     buffer.write(static_cast<uint8_t>(42));
@@ -62,6 +63,30 @@ TEST_CASE("Size tests") {
     REQUIRE(buffer.size() == 10);
     buffer.write(static_cast<uint8_t>(42));
     REQUIRE(buffer.size() == 11);
+    REQUIRE(buffer.empty() == false);
+
+    uint8_t read8;
+    uint16_t read16;
+    uint32_t read32;
+
+    read8 = buffer.read8();
+    REQUIRE(buffer.size() == 10);
+    read8 = buffer.read8();
+    REQUIRE(buffer.size() == 9);
+
+    read16 = buffer.read16();
+    REQUIRE(buffer.size() == 7);
+
+    read32 = buffer.read32();
+    REQUIRE(buffer.size() == 3);
+
+    read16 = buffer.read16();
+    REQUIRE(buffer.size() == 1);
+
+    read8 = buffer.read8();
+    REQUIRE(buffer.size() == 0);
+    REQUIRE(buffer.empty() == true);
+    
 }
 
 TEST_CASE("Network order") {

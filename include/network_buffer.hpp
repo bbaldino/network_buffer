@@ -90,13 +90,23 @@ public:
     }
 
     /**
-     * Returns the amount of bytes written to the buffer
-     * NOTE: this will include all bytes written and
-     * will not exclude any bytes that may have been read
-     * from the head of the buffer
+     * Returns the current size of the buffer, which
+     * is calculated as the amount of bytes written
+     * minus any bytes read.
      */
     size_t size() const {
-        return _tail - _buffer;
+        return _tail - _head;
+    }
+
+    /**
+     * Returns whether or not the buffer is
+     * (effectively) empty.  Note that this
+     * does not mean no bytes have been written,
+     * it could mean that bytes were written and
+     * then read
+     */
+    bool empty() const {
+        return _tail == _head;
     }
 
 //protected:

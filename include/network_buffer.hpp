@@ -38,16 +38,16 @@ public:
         _tail += numBytes;
     }
 
-    uint8_t read8() const {
+    uint8_t read8() {
         return _read<uint8_t>();
     }
 
-    uint16_t read16() const {
+    uint16_t read16() {
         uint16_t res = _read<uint16_t>();
         return ntohs(res);
     }
 
-    uint32_t read32() const {
+    uint32_t read32() {
         uint32_t res = _read<uint32_t>();
         return ntohl(res);
     }
@@ -58,7 +58,7 @@ public:
      * current point and advances the position
      * by the given number of bytes
      */
-    uint8_t* read(std::size_t numBytes) const {
+    uint8_t* read(std::size_t numBytes) {
         assert(_head + numBytes <= _buffer + BUF_SIZE);
         uint8_t* currPos = _head;
         _head += numBytes;
@@ -111,7 +111,7 @@ public:
 
 //protected:
     uint8_t _buffer[BUF_SIZE]; 
-    mutable uint8_t* _head; // Tracks reading
+    uint8_t* _head; // Tracks reading
     uint8_t* _tail; // Tracks writing
 
     template<typename T>
@@ -122,7 +122,7 @@ public:
     }
 
     template<typename T>
-    T _read() const {
+    T _read() {
         assert(_head < (_tail + sizeof(T)));
         T val;
         memcpy(&val, _head, sizeof(T));

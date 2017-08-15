@@ -65,8 +65,12 @@ public:
         return currPos;
     }
 
+    /**
+     * Return the position in the buffer to be written
+     * to next
+     */
     const uint8_t* const getBuffer() const {
-        return _buffer;
+        return _head;
     }
 
     /**
@@ -74,7 +78,7 @@ public:
      * for example, when reading from the network)
      */
     uint8_t* getBuffer() {
-        return _buffer;
+        return _head;
     }
 
     /**
@@ -96,6 +100,10 @@ public:
      */
     size_t size() const {
         return _tail - _head;
+    }
+
+    size_t remainingCapacity() const {
+        return BUF_SIZE - (_tail - _buffer);;
     }
 
     /**

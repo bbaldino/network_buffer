@@ -8,9 +8,11 @@
 using namespace std;
 
 TEST_CASE("Initialization") {
-    NetworkBuffer<> buffer;
+    NetworkBuffer<1500> buffer;
     REQUIRE((void*)buffer.getBuffer() == (void*)buffer.read(0));
     REQUIRE(buffer.empty() == true);
+    REQUIRE(buffer.size() == 0);
+    REQUIRE(buffer.remainingCapacity() == 1500);
 }
 
 TEST_CASE("Basic read/write tests") {
@@ -49,7 +51,7 @@ TEST_CASE("Basic read/write tests") {
 }
 
 TEST_CASE("Size/empty tests") {
-    NetworkBuffer<> buffer;
+    NetworkBuffer<1500> buffer;
 
     buffer.write(static_cast<uint8_t>(42));
     REQUIRE(buffer.size() == 1);
@@ -64,6 +66,7 @@ TEST_CASE("Size/empty tests") {
     buffer.write(static_cast<uint8_t>(42));
     REQUIRE(buffer.size() == 11);
     REQUIRE(buffer.empty() == false);
+    REQUIRE(buffer.remainingCapacity() == (1500 - 11));
 
     uint8_t read8;
     uint16_t read16;
@@ -86,6 +89,7 @@ TEST_CASE("Size/empty tests") {
     read8 = buffer.read8();
     REQUIRE(buffer.size() == 0);
     REQUIRE(buffer.empty() == true);
+    REQUIRE(buffer.remainingCapacity() == (1500 - 11));
     
 }
 
@@ -143,16 +147,19 @@ TEST_CASE("Read directly into buffer") {
 }
 
 TEST_CASE("Direct read/write") {
-    NetworkBuffer<> buffer;
+    NetworkBuffer<1500> buffer;
 
     SECTION("string") {
         string str{"Hello, world"};
         buffer.write(reinterpret_cast<const uint8_t*>(str.c_str()), str.length());
+        REQUIRE(buffer.size() == str.length());
 
         uint8_t* rawStr = buffer.read(str.length());
+        REQUIRE(buffer.empty() == true);
         string bufStr((char*)rawStr, str.length());
 
         REQUIRE(str.compare(std::string{bufStr}) == 0);
+        REQUIRE(buffer.remainingCapacity() == (1500 - str.length()));
     }
 
     SECTION("data") {

@@ -124,7 +124,7 @@ public:
 
     template<typename T>
     void _write(const T& val) {
-        assert(_tail + sizeof(T) < _buffer + BUF_SIZE);
+        assert(_tail + sizeof(T) <= _buffer + BUF_SIZE);
         memcpy(_tail, &val, sizeof(T));
         _tail += sizeof(T);
     }

@@ -173,3 +173,12 @@ TEST_CASE("Direct read/write") {
         }
     }
 }
+
+TEST_CASE("Size corner cases") {
+    NetworkBuffer<4> buf;
+
+    uint32_t val = 42;
+    buf.write(val);
+    // Make sure no assert was hit
+    REQUIRE(true);
+}

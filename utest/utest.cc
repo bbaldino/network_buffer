@@ -7,16 +7,50 @@
 
 using namespace std;
 
-TEST_CASE("Initialization") {
-    NetworkBuffer<1500> buffer;
-    REQUIRE((void*)buffer.getBuffer() == (void*)buffer.read(0));
+void doInitializationTests(NetworkBufferView& buffer) {
     REQUIRE(buffer.empty() == true);
     REQUIRE(buffer.size() == 0);
-    REQUIRE(buffer.remainingCapacity() == 1500);
 }
 
-TEST_CASE("Basic read/write tests") {
-    NetworkBuffer<> buffer;
+void doWriteTests(NetworkBufferView& buffer) {
+    SECTION("uint8_t") {
+        uint8_t writeVal = 42;
+        buffer.write(writeVal);
+        uint8_t bufferVal;
+        buffer.readInto(&bufferVal, sizeof(uint8_t));
+        REQUIRE(bufferVal == writeVal);
+    }
+
+    SECTION("uint16_t") {
+        uint16_t writeVal = 0xDEAD;
+        buffer.write(writeVal);
+        uint16_t bufferVal;
+        buffer.readInto(reinterpret_cast<uint8_t*>(&bufferVal), sizeof(uint16_t));
+        REQUIRE(bufferVal == htons(writeVal));
+    }
+
+    SECTION("uint32_t") {
+        uint32_t writeVal = 0xDEADBEEF;
+        buffer.write(writeVal);
+        uint32_t bufferVal;
+        buffer.readInto(reinterpret_cast<uint8_t*>(&bufferVal), sizeof(uint32_t));
+        REQUIRE(bufferVal == htonl(writeVal));
+    }
+
+    SECTION("buffer") {
+        uint8_t writeVal[4] = { 0xDE, 0xAD, 0xBE, 0XEF };
+        buffer.write(writeVal, 4);
+        uint8_t bufferVal[4];
+        buffer.readInto(bufferVal, 4);
+        for (auto i = 0; i < 4; ++i) {
+            REQUIRE(bufferVal[i] == writeVal[i]);
+        }
+    }
+}
+
+void doReadTests(NetworkBufferView& buffer) {
+    // We've already verified write, so we can use write
+    // here and assume it works
 
     SECTION("uint8_t") {
         uint8_t writeVal = 42;
@@ -40,145 +74,78 @@ TEST_CASE("Basic read/write tests") {
     }
 
     SECTION("buffer") {
-        NetworkBuffer<4> buffer;
         uint8_t writeVal[4] = { 0xDE, 0xAD, 0xBE, 0XEF };
         buffer.write(writeVal, 4);
-        uint8_t* readVal = buffer.read(4);
+        uint8_t readVal[4];
+        buffer.readInto(readVal, 4);
         for (auto i = 0; i < 4; ++i) {
-            REQUIRE(writeVal[i] == readVal[i]);
+            REQUIRE(readVal[i] == writeVal[i]);
         }
     }
 }
 
-TEST_CASE("Size/empty tests") {
-    NetworkBuffer<1500> buffer;
-
-    buffer.write(static_cast<uint8_t>(42));
-    REQUIRE(buffer.size() == 1);
-    buffer.write(static_cast<uint8_t>(42));
-    REQUIRE(buffer.size() == 2);
-    buffer.write(static_cast<uint16_t>(512));
-    REQUIRE(buffer.size() == 4);
-    buffer.write(static_cast<uint32_t>(512 * 512));
-    REQUIRE(buffer.size() == 8);
-    buffer.write(static_cast<uint16_t>(512));
-    REQUIRE(buffer.size() == 10);
-    buffer.write(static_cast<uint8_t>(42));
-    REQUIRE(buffer.size() == 11);
-    REQUIRE(buffer.empty() == false);
-    REQUIRE(buffer.remainingCapacity() == (1500 - 11));
-
-    uint8_t read8;
-    uint16_t read16;
-    uint32_t read32;
-
-    read8 = buffer.read8();
-    REQUIRE(buffer.size() == 10);
-    read8 = buffer.read8();
-    REQUIRE(buffer.size() == 9);
-
-    read16 = buffer.read16();
-    REQUIRE(buffer.size() == 7);
-
-    read32 = buffer.read32();
-    REQUIRE(buffer.size() == 3);
-
-    read16 = buffer.read16();
-    REQUIRE(buffer.size() == 1);
-
-    read8 = buffer.read8();
-    REQUIRE(buffer.size() == 0);
-    REQUIRE(buffer.empty() == true);
-    REQUIRE(buffer.remainingCapacity() == (1500 - 11));
-    
-}
-
-TEST_CASE("Network order") {
-    // Verify that the buffer is storing the data
-    // in network order
-    NetworkBuffer<> buffer;
-
-    buffer.write(static_cast<uint8_t>(42));
-    buffer.write(static_cast<uint16_t>(512));
-    buffer.write(static_cast<uint32_t>(512 * 512));
-    // Get the raw buffer and directly memcpy out of it
-    const uint8_t* const buf = buffer.getBuffer();
-    uint8_t bufOffset = 0;
-
-    uint8_t networkByte;
-    memcpy(&networkByte, buf + bufOffset, sizeof(uint8_t));
-    bufOffset += sizeof(uint8_t);
-    REQUIRE(networkByte == 42);
-
-    uint16_t networkShort;
-    memcpy(&networkShort, buf + bufOffset, sizeof(uint16_t));
-    bufOffset += sizeof(uint16_t);
-    REQUIRE(networkShort == htons(512));
-
-    uint32_t networkLong;
-    memcpy(&networkLong, buf + bufOffset, sizeof(uint32_t));
-    REQUIRE(networkLong == htonl(512 * 512));
-}
-
-TEST_CASE("Read directly into buffer") {
-    // Make sure that when we read into the buffer directly, we still
-    // get the proper values out
-    uint8_t networkByte = 42;
-    uint16_t networkShort = htons(512);
-    uint32_t networkLong = htonl(512 * 512);
-
-    NetworkBuffer<> buffer;
-    uint8_t* buf = buffer.getBuffer();
-    memcpy(buf, &networkByte, sizeof(networkByte));
-    buf += sizeof(networkByte);
-    memcpy(buf, &networkShort, sizeof(networkShort));
-    buf += sizeof(networkShort);
-    memcpy(buf, &networkLong, sizeof(networkLong));
-    buf += sizeof(networkLong);
-    buffer.setSize(buf - buffer.getBuffer());
-
-    REQUIRE(buffer.size() == sizeof(networkByte) + sizeof(networkShort) + sizeof(networkLong));
-    uint8_t hostByte = buffer.read8();
-    REQUIRE(hostByte == 42);
-    uint16_t hostShort = buffer.read16();
-    REQUIRE(hostShort == 512);
-    uint32_t hostLong = buffer.read32();
-    REQUIRE(hostLong == 512 * 512);
-}
-
-TEST_CASE("Direct read/write") {
-    NetworkBuffer<1500> buffer;
-
-    SECTION("string") {
-        string str{"Hello, world"};
-        buffer.write(reinterpret_cast<const uint8_t*>(str.c_str()), str.length());
-        REQUIRE(buffer.size() == str.length());
-
-        uint8_t* rawStr = buffer.read(str.length());
+void doSizeTests(NetworkBufferView& buffer) {
+    SECTION("Size increases after writes") {
         REQUIRE(buffer.empty() == true);
-        string bufStr((char*)rawStr, str.length());
-
-        REQUIRE(str.compare(std::string{bufStr}) == 0);
-        REQUIRE(buffer.remainingCapacity() == (1500 - str.length()));
+        REQUIRE(buffer.size() == 0);
+        buffer.write(static_cast<uint8_t>(42));
+        REQUIRE(buffer.size() == 1);
+        buffer.write(static_cast<uint8_t>(42));
+        REQUIRE(buffer.size() == 2);
+        buffer.write(static_cast<uint16_t>(512));
+        REQUIRE(buffer.size() == 4);
+        buffer.write(static_cast<uint32_t>(512 * 512));
+        REQUIRE(buffer.size() == 8);
+        buffer.write(static_cast<uint16_t>(512));
+        REQUIRE(buffer.size() == 10);
+        buffer.write(static_cast<uint8_t>(42));
+        REQUIRE(buffer.size() == 11);
+        REQUIRE(buffer.empty() == false);
     }
 
-    SECTION("data") {
-        uint8_t buf[12] = {0xDE, 0xAD, 0xBE, 0xEF, 0xDE, 0xAD, 0xBE, 0xEF};
-        buffer.write(buf, 12);
+    SECTION("Size decreases after reads") {
+        buffer.write(static_cast<uint8_t>(42));
+        buffer.write(static_cast<uint8_t>(42));
+        buffer.write(static_cast<uint16_t>(512));
+        buffer.write(static_cast<uint32_t>(512 * 512));
+        buffer.write(static_cast<uint16_t>(512));
+        buffer.write(static_cast<uint8_t>(42));
 
-        uint8_t* raw = buffer.read(12);
+        buffer.read8();
+        REQUIRE(buffer.size() == 10);
+        buffer.read8();
+        REQUIRE(buffer.size() == 9);
 
-        for (auto i = 0; i < 12; ++i) {
-            REQUIRE(raw[i] == buf[i]);
-        }
+        buffer.read16();
+        REQUIRE(buffer.size() == 7);
+
+        buffer.read32();
+        REQUIRE(buffer.size() == 3);
+
+        buffer.read16();
+        REQUIRE(buffer.size() == 1);
+
+        buffer.read8();
+        REQUIRE(buffer.size() == 0);
+        REQUIRE(buffer.empty() == true);
     }
 }
 
-TEST_CASE("Size corner cases") {
-    NetworkBuffer<4> buf;
+TEST_CASE("Bring your own buffer") {
+    uint8_t backingBuffer[1500];
+    NetworkBufferView buffer(backingBuffer);
 
-    uint32_t val = 42;
-    buf.write(val);
-    // Make sure no assert was hit
-    REQUIRE(true);
+    doInitializationTests(buffer);
+    doWriteTests(buffer);
+    doReadTests(buffer);
+    doSizeTests(buffer);
+}
+
+TEST_CASE("NetworkBuffer") {
+    NetworkBuffer<> buffer;
+
+    doInitializationTests(buffer);
+    doWriteTests(buffer);
+    doReadTests(buffer);
+    doSizeTests(buffer);
 }

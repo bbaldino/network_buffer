@@ -17,7 +17,7 @@ void doWriteTests(NetworkBufferView& buffer) {
         uint8_t writeVal = 42;
         buffer.write(writeVal);
         uint8_t bufferVal;
-        buffer.readInto(&bufferVal, sizeof(uint8_t));
+        memcpy(&bufferVal, buffer.getBuffer(), sizeof(uint8_t));
         REQUIRE(bufferVal == writeVal);
     }
 
@@ -25,7 +25,7 @@ void doWriteTests(NetworkBufferView& buffer) {
         uint16_t writeVal = 0xDEAD;
         buffer.write(writeVal);
         uint16_t bufferVal;
-        buffer.readInto(reinterpret_cast<uint8_t*>(&bufferVal), sizeof(uint16_t));
+        memcpy(&bufferVal, buffer.getBuffer(), sizeof(uint16_t));
         REQUIRE(bufferVal == htons(writeVal));
     }
 
@@ -33,7 +33,7 @@ void doWriteTests(NetworkBufferView& buffer) {
         uint32_t writeVal = 0xDEADBEEF;
         buffer.write(writeVal);
         uint32_t bufferVal;
-        buffer.readInto(reinterpret_cast<uint8_t*>(&bufferVal), sizeof(uint32_t));
+        memcpy(&bufferVal, buffer.getBuffer(), sizeof(uint32_t));
         REQUIRE(bufferVal == htonl(writeVal));
     }
 
@@ -41,7 +41,7 @@ void doWriteTests(NetworkBufferView& buffer) {
         uint8_t writeVal[4] = { 0xDE, 0xAD, 0xBE, 0XEF };
         buffer.write(writeVal, 4);
         uint8_t bufferVal[4];
-        buffer.readInto(bufferVal, 4);
+        memcpy(bufferVal, buffer.getBuffer(), 4);
         for (auto i = 0; i < 4; ++i) {
             REQUIRE(bufferVal[i] == writeVal[i]);
         }

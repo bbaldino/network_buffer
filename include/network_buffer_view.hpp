@@ -51,6 +51,21 @@ public:
         m_head += numBytes;
     }
 
+    /**
+     * Return the position in the buffer to be written
+     * to next
+     */
+    const uint8_t* const getBuffer() const {
+        return m_head;
+    }
+
+    /**
+     * Get a non-const version of the buffer (to be used, 
+     * for example, when reading from the network)
+     */
+    uint8_t* getBuffer() {
+        return m_head;
+    }
 
     /**
      * Returns the current size of the buffer, which

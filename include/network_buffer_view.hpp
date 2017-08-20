@@ -2,7 +2,7 @@
 
 class NetworkBufferView {
 public:
-    NetworkBufferView(uint8_t* buf) :
+    NetworkBufferView(uint8_t* const buf) :
         m_buf(buf), m_head(buf), m_tail(buf) {}
 
     void write(const uint8_t& val) {
@@ -76,7 +76,7 @@ public:
     }
 
 //protected:
-    uint8_t* m_buf = nullptr;
+    uint8_t* const m_buf = nullptr;
     uint8_t* m_head = nullptr; // Tracks reading
     uint8_t* m_tail = nullptr; // Tracks writing
 

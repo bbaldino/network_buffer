@@ -51,20 +51,8 @@ public:
         m_head += numBytes;
     }
 
-    /**
-     * Return the position in the buffer to be written
-     * to next
-     */
-    const uint8_t* const getBuffer() const {
-        return m_head;
-    }
-
-    /**
-     * Get a non-const version of the buffer (to be used, 
-     * for example, when reading from the network)
-     */
-    uint8_t* getBuffer() {
-        return m_head;
+    void seek(std::size_t numBytes) {
+        m_head += numBytes;
     }
 
     /**
@@ -86,39 +74,6 @@ public:
     bool empty() const {
         return m_tail == m_head;
     }
-
-    //TODO: from here down: still needed?
-    /**
-     * Return the position in the buffer to be written
-     * to next
-     */
-    //const uint8_t* const getBuffer() const {
-    //    return m_head;
-    //}
-    ///**
-    // * Get a non-const version of the buffer (to be used, 
-    // * for example, when reading from the network)
-    // */
-    //uint8_t* getBuffer() {
-    //    return m_head;
-    //}
-    ///**
-    // * Manually set the size of the buffer
-    // * NOTE: this should *only* be used when the internal
-    // * buffer has been grabbed (via getBuffer) and written
-    // * to directly.
-    // * TOOD: is there a better way to implement this?
-    // */
-    //void setSize(std::size_t size) {
-    //    m_tail += size;
-    //}
-
-    ////DEPRECATED
-    //uint8_t* read(std::size_t numBytes) {
-    //    uint8_t* currPos = m_head;
-    //    m_head += numBytes;
-    //    return currPos;
-    //}
 
 //protected:
     uint8_t* m_buf = nullptr;

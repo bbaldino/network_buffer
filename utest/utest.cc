@@ -1,14 +1,14 @@
 #define CATCH_CONFIG_MAIN
 #include "catch.hpp"
 
-#include "network_buffer.hpp"
+#include "array_backed_network_buffer.hpp"
 
 #include <iostream>
 
 using namespace std;
 
 TEST_CASE("Initialization") {
-    NetworkBuffer<1500> buffer;
+    ArrayBackedNetworkBuffer<1500> buffer;
     REQUIRE((void*)buffer.getBuffer() == (void*)buffer.read(0));
     REQUIRE(buffer.empty() == true);
     REQUIRE(buffer.size() == 0);
@@ -16,7 +16,7 @@ TEST_CASE("Initialization") {
 }
 
 TEST_CASE("Basic read/write tests") {
-    NetworkBuffer<> buffer;
+    ArrayBackedNetworkBuffer<> buffer;
 
     SECTION("uint8_t") {
         uint8_t writeVal = 42;
@@ -40,7 +40,7 @@ TEST_CASE("Basic read/write tests") {
     }
 
     SECTION("buffer") {
-        NetworkBuffer<4> buffer;
+        ArrayBackedNetworkBuffer<4> buffer;
         uint8_t writeVal[4] = { 0xDE, 0xAD, 0xBE, 0XEF };
         buffer.write(writeVal, 4);
         uint8_t* readVal = buffer.read(4);
@@ -51,7 +51,7 @@ TEST_CASE("Basic read/write tests") {
 }
 
 TEST_CASE("Size/empty tests") {
-    NetworkBuffer<1500> buffer;
+    ArrayBackedNetworkBuffer<1500> buffer;
 
     buffer.write(static_cast<uint8_t>(42));
     REQUIRE(buffer.size() == 1);
@@ -90,13 +90,13 @@ TEST_CASE("Size/empty tests") {
     REQUIRE(buffer.size() == 0);
     REQUIRE(buffer.empty() == true);
     REQUIRE(buffer.remainingCapacity() == (1500 - 11));
-    
+
 }
 
 TEST_CASE("Network order") {
     // Verify that the buffer is storing the data
     // in network order
-    NetworkBuffer<> buffer;
+    ArrayBackedNetworkBuffer<> buffer;
 
     buffer.write(static_cast<uint8_t>(42));
     buffer.write(static_cast<uint16_t>(512));
@@ -127,7 +127,7 @@ TEST_CASE("Read directly into buffer") {
     uint16_t networkShort = htons(512);
     uint32_t networkLong = htonl(512 * 512);
 
-    NetworkBuffer<> buffer;
+    ArrayBackedNetworkBuffer<> buffer;
     uint8_t* buf = buffer.getBuffer();
     memcpy(buf, &networkByte, sizeof(networkByte));
     buf += sizeof(networkByte);
@@ -147,7 +147,7 @@ TEST_CASE("Read directly into buffer") {
 }
 
 TEST_CASE("Direct read/write") {
-    NetworkBuffer<1500> buffer;
+    ArrayBackedNetworkBuffer<1500> buffer;
 
     SECTION("string") {
         string str{"Hello, world"};
@@ -175,7 +175,7 @@ TEST_CASE("Direct read/write") {
 }
 
 TEST_CASE("Size corner cases") {
-    NetworkBuffer<4> buf;
+    ArrayBackedNetworkBuffer<4> buf;
 
     uint32_t val = 42;
     buf.write(val);

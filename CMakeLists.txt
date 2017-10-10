@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.8.2)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_FLAGS "-Wall -pedantic -g -O0")
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 project(network_buffer)
 
 add_library(NetworkBuffer INTERFACE)
@@ -14,6 +16,6 @@ add_subdirectory(utest)
 
 # Can't find any way to pass the 'verbose' flag to ctest using the
 #  normal 'make test' target
-add_custom_target(check 
+add_custom_target(check
                   COMMAND ${CMAKE_CTEST_COMMAND} --verbose
                   DEPENDS utests)

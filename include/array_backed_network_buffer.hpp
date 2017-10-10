@@ -83,6 +83,10 @@ public:
         return _head;
     }
 
+    const uint8_t* data() const override {
+        return _buffer;
+    }
+
     /**
      * Manually set the size of the buffer
      * NOTE: this should *only* be used when the internal
@@ -105,7 +109,7 @@ public:
     }
 
     size_t remainingCapacity() const override {
-        return BUF_SIZE - (_tail - _buffer);;
+        return BUF_SIZE - (_tail - _buffer);
     }
 
     /**

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstddef>
+#include <cstdint>
 
 /**
  * Stores data in a buffer in network order, provides
@@ -50,11 +51,16 @@ public:
     virtual uint8_t* getBuffer() = 0;
 
     /**
+     * Return the underlying buffer
+     */
+    virtual const uint8_t* data() const = 0;
+
+    /**
      * Manually set the size of the buffer
      * NOTE: this should *only* be used when the internal
      * buffer has been grabbed (via getBuffer) and written
      * to directly.
-     * TOOD: is there a better way to implement this?
+     * TODO: is there a better way to implement this?
      */
     virtual void setSize(std::size_t size) = 0;
 

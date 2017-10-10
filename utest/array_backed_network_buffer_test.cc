@@ -1,4 +1,3 @@
-#define CATCH_CONFIG_MAIN
 #include "catch.hpp"
 
 #include "array_backed_network_buffer.hpp"

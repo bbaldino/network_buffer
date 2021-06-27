@@ -3,11 +3,15 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 project(network_buffer)
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 add_library(NetworkBuffer INTERFACE)
 target_include_directories(NetworkBuffer INTERFACE include)
 
 # Directory for thirdparty code
 set(THIRDPARTY_DIR ${CMAKE_SOURCE_DIR}/thirdparty)
+
+add_subdirectory(thirdparty/catch)
 
 enable_testing(true)
 add_subdirectory(utest)
